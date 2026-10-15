@@ -1,0 +1,62 @@
+60SecOps — WSL 2 + Ubuntu Command Sheet
+========================================
+
+WINDOWS POWERSHELL / TERMINAL
+
+Install WSL:
+wsl --install
+
+List available Linux distributions:
+wsl --list --online
+
+Install Ubuntu:
+wsl --install -d Ubuntu
+
+List installed distributions and WSL versions:
+wsl --list --verbose
+
+Launch Ubuntu:
+wsl
+
+
+UBUNTU TERMINAL
+
+Check the installed Ubuntu version:
+cat /etc/os-release
+
+Check the Linux kernel version:
+uname -r
+
+Update packages:
+sudo apt update
+sudo apt upgrade
+
+Create a test file:
+echo "Created inside Linux on Windows" | tee wsl-demo.txt
+
+Open the current Linux folder in Windows File Explorer:
+explorer.exe .
+
+Check Python:
+python3 --version
+
+Create and open a demo folder:
+mkdir -p ~/wsl-demo
+cd ~/wsl-demo
+
+Create a basic webpage:
+printf '%s\n' '<h1>Linux is running inside Windows</h1>' '<p>Powered by WSL 2</p>' > index.html
+
+Start the Python web server:
+python3 -m http.server 8000
+
+Open in Windows:
+http://localhost:8000
+
+Install GNOME Text Editor:
+sudo apt install gnome-text-editor -y
+
+Launch GNOME Text Editor:
+gnome-text-editor
+
+More practical guides: https://www.youtube.com/@60SecOps
