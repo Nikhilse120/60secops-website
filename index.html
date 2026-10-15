@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Practical Windows, Linux, cloud and homelab guides from 60SecOps.">
+  <meta name="description" content="Practical Windows, Linux, WSL, Proxmox, Docker, networking, Azure and homelab guides from 60SecOps.">
   <meta name="theme-color" content="#08111f">
   <title>60SecOps — Practical IT Guides</title>
   <style>
@@ -16,6 +16,7 @@
       --cyan: #18d7ff;
       --green: #8cff3f;
       --orange: #ff7a1a;
+      --purple: #7657ff;
       --line: rgba(255,255,255,.10);
       --shadow: 0 24px 70px rgba(0,0,0,.35);
     }
@@ -28,7 +29,10 @@
       background:
         radial-gradient(circle at 15% -10%, rgba(24,215,255,.16), transparent 34rem),
         radial-gradient(circle at 90% 18%, rgba(140,255,63,.10), transparent 30rem),
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
         var(--bg);
+      background-size: auto, auto, 42px 42px, 42px 42px, auto;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.55;
     }
@@ -47,18 +51,16 @@
 
     nav { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
     .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; text-decoration: none; letter-spacing: -.03em; }
-    .mark {
-      display: grid;
-      place-items: center;
+    .brand-image {
+      display: block;
       width: 40px;
       height: 40px;
-      border: 1px solid rgba(24,215,255,.55);
-      border-radius: 11px;
-      color: var(--cyan);
-      background: linear-gradient(145deg, rgba(24,215,255,.16), rgba(140,255,63,.08));
-      box-shadow: 0 0 24px rgba(24,215,255,.16);
-      font: 900 18px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow: hidden;
+      border: 1px solid rgba(24,215,255,.45);
+      border-radius: 50%;
+      box-shadow: 0 0 24px rgba(24,215,255,.2);
     }
+    .brand-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .brand span:last-child { font-size: 21px; }
     .brand em { color: var(--cyan); font-style: normal; }
 
@@ -85,7 +87,14 @@
     .button.secondary { color: var(--text); background: transparent; border-color: var(--line); box-shadow: none; }
     .button.small { min-height: 38px; padding: 0 14px; font-size: 13px; }
 
-    .hero { padding: 92px 0 64px; text-align: center; }
+    .hero {
+      min-height: 650px;
+      padding: 76px 0 72px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr);
+      align-items: center;
+      gap: clamp(38px, 7vw, 90px);
+    }
     .eyebrow {
       display: inline-flex;
       gap: 8px;
@@ -101,10 +110,55 @@
       text-transform: uppercase;
     }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
-    h1 { max-width: 880px; margin: 22px auto 18px; font-size: clamp(44px, 8vw, 88px); line-height: .98; letter-spacing: -.065em; }
-    h1 span { color: var(--cyan); }
-    .hero p { max-width: 720px; margin: 0 auto; color: var(--muted); font-size: clamp(17px, 2.2vw, 21px); }
-    .hero-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    h1 { max-width: 760px; margin: 22px 0 18px; font-size: clamp(50px, 7vw, 82px); line-height: .98; letter-spacing: -.065em; }
+    h1 span {
+      color: transparent;
+      background: linear-gradient(90deg, var(--cyan), #86efff 46%, var(--green));
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+    .hero p { max-width: 670px; margin: 0; color: var(--muted); font-size: clamp(17px, 2.2vw, 21px); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .topic-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 28px; }
+    .topic-row span { padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: #c8d5e8; background: rgba(255,255,255,.035); font-size: 12px; font-weight: 800; }
+
+    .hero-visual { position: relative; display: grid; place-items: center; min-height: 470px; }
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      width: 88%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(from 120deg, rgba(24,215,255,.22), rgba(118,87,255,.10), rgba(140,255,63,.16), rgba(255,122,26,.15), rgba(24,215,255,.22));
+      filter: blur(28px);
+      opacity: .72;
+    }
+    .logo-frame {
+      position: relative;
+      width: min(420px, 88vw);
+      aspect-ratio: 1;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 50%;
+      background: linear-gradient(145deg, rgba(24,215,255,.17), rgba(118,87,255,.08), rgba(255,122,26,.12));
+      box-shadow: 0 40px 100px rgba(0,0,0,.48), inset 0 0 50px rgba(24,215,255,.06);
+      animation: float 6s ease-in-out infinite;
+    }
+    .hero-logo { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .float-chip {
+      position: absolute;
+      padding: 9px 13px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 11px;
+      color: #ecf7ff;
+      background: rgba(7,16,29,.84);
+      box-shadow: 0 12px 30px rgba(0,0,0,.3);
+      backdrop-filter: blur(12px);
+      font: 800 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    .float-chip.one { top: 12%; left: -4%; color: var(--cyan); }
+    .float-chip.two { right: -2%; bottom: 20%; color: var(--green); }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 
     .section { padding: 38px 0 76px; }
     .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
@@ -112,6 +166,7 @@
     .section-head p { max-width: 560px; margin: 0; color: var(--muted); }
 
     .guide {
+      position: relative;
       overflow: hidden;
       display: grid;
       grid-template-columns: .85fr 1.15fr;
@@ -120,11 +175,18 @@
       background: linear-gradient(145deg, rgba(16,31,51,.96), rgba(9,19,33,.96));
       box-shadow: var(--shadow);
     }
+    .guide::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: linear-gradient(var(--cyan), var(--green)); }
     .guide-copy { padding: clamp(26px, 5vw, 54px); }
     .tag { color: var(--orange); font-size: 12px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
     .guide h3 { margin: 10px 0 14px; font-size: clamp(29px, 4.2vw, 46px); line-height: 1.06; letter-spacing: -.045em; }
     .guide-copy p { color: var(--muted); }
     .guide-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+
+    .video-pane { display: flex; flex-direction: column; justify-content: center; gap: 15px; padding: clamp(20px, 3.5vw, 34px); border-left: 1px solid var(--line); background: #050b13; }
+    .video-frame { position: relative; overflow: hidden; width: 100%; aspect-ratio: 16 / 9; border: 1px solid rgba(255,255,255,.12); border-radius: 17px; background: #000; box-shadow: 0 22px 50px rgba(0,0,0,.42); }
+    .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .video-caption { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 13px; }
+    .video-caption strong { color: var(--text); }
 
     .terminal { padding: 26px; border-left: 1px solid var(--line); background: #050b13; }
     .terminal-bar { display: flex; gap: 7px; margin-bottom: 18px; }
@@ -136,10 +198,15 @@
     pre .command { color: var(--cyan); }
 
     .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .card { padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: rgba(13,26,43,.74); }
+    .card { position: relative; overflow: hidden; padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: rgba(13,26,43,.74); transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+    .card::after { content: ""; position: absolute; width: 120px; height: 120px; right: -58px; bottom: -68px; border-radius: 50%; background: rgba(24,215,255,.08); }
+    .card:hover { transform: translateY(-5px); border-color: rgba(24,215,255,.32); background: rgba(16,31,51,.94); }
     .icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 18px; border-radius: 12px; color: var(--cyan); background: rgba(24,215,255,.10); font: 900 17px/1 ui-monospace, monospace; }
     .card:nth-child(2) .icon { color: var(--orange); background: rgba(255,122,26,.11); }
     .card:nth-child(3) .icon { color: var(--green); background: rgba(140,255,63,.09); }
+    .card:nth-child(4) .icon { color: #a892ff; background: rgba(118,87,255,.12); }
+    .card:nth-child(5) .icon { color: #ff9f58; background: rgba(255,122,26,.11); }
+    .card:nth-child(6) .icon { color: #71e3ff; background: rgba(24,215,255,.10); }
     .card h3 { margin: 0 0 8px; font-size: 21px; }
     .card p { margin: 0; color: var(--muted); }
 
@@ -147,32 +214,57 @@
     .download-box h3 { margin: 0 0 6px; font-size: 24px; }
     .download-box p { margin: 0; color: var(--muted); }
 
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(28px, 6vw, 74px);
+      align-items: center;
+      padding: clamp(30px, 6vw, 62px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(118,87,255,.10), rgba(13,26,43,.86) 45%, rgba(24,215,255,.07));
+    }
+    .about h2 { margin: 8px 0 14px; }
+    .about p { margin: 0; color: var(--muted); }
+    .about .button { margin-top: 24px; }
+    .process { display: grid; gap: 12px; }
+    .process-row { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(5,11,19,.48); }
+    .process-row b { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; color: var(--cyan); background: rgba(24,215,255,.09); font: 900 13px/1 ui-monospace, monospace; }
+    .process-row strong { display: block; margin-bottom: 3px; }
+    .process-row span { color: var(--muted); font-size: 14px; }
+
     footer { padding: 30px 0 46px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
     .footer-row { display: flex; justify-content: space-between; gap: 18px; }
 
     @media (max-width: 800px) {
       .nav-links a:not(.button) { display: none; }
-      .hero { padding-top: 64px; }
+      .hero { min-height: auto; padding-top: 58px; grid-template-columns: 1fr; text-align: center; }
+      .hero p { margin-inline: auto; }
+      .hero-actions, .topic-row { justify-content: center; }
+      .hero-visual { min-height: 360px; }
+      .logo-frame { width: min(340px, 82vw); }
       .guide { grid-template-columns: 1fr; }
-      .terminal { border-left: 0; border-top: 1px solid var(--line); }
+      .terminal, .video-pane { border-left: 0; border-top: 1px solid var(--line); }
       .cards { grid-template-columns: 1fr; }
       .section-head { align-items: start; flex-direction: column; }
       .download-box { align-items: start; flex-direction: column; }
+      .about { grid-template-columns: 1fr; }
     }
 
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .button:hover { transform: none; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .button:hover, .card:hover { transform: none; } .logo-frame { animation: none; } }
   </style>
 </head>
 <body>
   <header>
     <nav class="wrap" aria-label="Main navigation">
       <a class="brand" href="#top" aria-label="60SecOps home">
-        <span class="mark">&gt;_</span>
+        <span class="brand-image"><img src="assets/60secops-logo.png" alt=""></span>
         <span>60Sec<em>Ops</em></span>
       </a>
       <div class="nav-links">
         <a href="#guides">Guides</a>
         <a href="#downloads">Downloads</a>
+        <a href="#about">About</a>
         <a class="button small" href="https://www.youtube.com/@60SecOps" target="_blank" rel="noopener">YouTube ↗</a>
       </div>
     </nav>
@@ -180,12 +272,24 @@
 
   <main id="top">
     <section class="hero wrap">
-      <div class="eyebrow"><span class="dot"></span> Learn it. Run it. Remember it.</div>
-      <h1>Practical IT guides.<br><span>No unnecessary filler.</span></h1>
-      <p>Clear Windows, Linux, cloud and homelab tutorials—with commands you can copy and use immediately.</p>
-      <div class="hero-actions">
-        <a class="button" href="#guides">Explore the latest guide</a>
-        <a class="button secondary" href="https://www.youtube.com/@60SecOps?sub_confirmation=1" target="_blank" rel="noopener">Subscribe on YouTube</a>
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="dot"></span> Learn it. Run it. Remember it.</div>
+        <h1>Practical IT guides.<br><span>No unnecessary filler.</span></h1>
+        <p>Clear Windows, Linux, cloud and homelab tutorials—with commands you can copy and use immediately.</p>
+        <div class="hero-actions">
+          <a class="button" href="#guides">Explore the latest guide</a>
+          <a class="button secondary" href="https://www.youtube.com/@60SecOps?sub_confirmation=1" target="_blank" rel="noopener">Subscribe on YouTube</a>
+        </div>
+        <div class="topic-row" aria-label="60SecOps topics">
+          <span>Windows</span><span>Linux</span><span>Proxmox</span><span>Cloud</span><span>Homelab</span>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="60SecOps technology illustration">
+        <div class="logo-frame">
+          <img class="hero-logo" src="assets/60secops-logo.png" alt="60SecOps stopwatch surrounded by cloud, server, Docker, Proxmox and Azure symbols">
+          <span class="float-chip one">&gt; practical_guides</span>
+          <span class="float-chip two">● systems_online</span>
+        </div>
       </div>
     </section>
 
@@ -195,29 +299,24 @@
           <span class="tag">Featured guide</span>
           <h2>Start with WSL 2</h2>
         </div>
-        <p>Run a complete Ubuntu environment alongside Windows 11, then test it with a local Python web server.</p>
+        <p>Watch the complete beginner guide, copy the commands, and run a working Ubuntu environment alongside Windows 11.</p>
       </div>
 
       <article class="guide">
         <div class="guide-copy">
           <span class="tag">Windows 11 + Ubuntu</span>
-          <h3>Run Linux inside Windows</h3>
-          <p>Install WSL 2, choose Ubuntu, access Linux files from Windows and launch your first local web server.</p>
+          <h3>Run Linux on Windows 11</h3>
+          <p>Install WSL 2 and Ubuntu, verify the Linux environment, work with files, and launch a local Python web server.</p>
           <div class="guide-actions">
-            <a class="button" href="https://www.youtube.com/@60SecOps" target="_blank" rel="noopener">Watch on YouTube</a>
+            <a class="button" href="https://youtu.be/b4l_Hu2OBkI" target="_blank" rel="noopener">Watch full guide ↗</a>
             <a class="button secondary" href="downloads/wsl2-ubuntu-commands.txt" download>Download commands</a>
           </div>
         </div>
-        <div class="terminal" aria-label="WSL commands example">
-          <div class="terminal-bar" aria-hidden="true"><i></i><i></i><i></i></div>
-          <pre><span class="prompt">PS C:\Users\60secops&gt;</span> <span class="command">wsl --install</span>
-
-<span class="prompt">PS C:\Users\60secops&gt;</span> <span class="command">wsl --install -d Ubuntu</span>
-
-<span class="prompt">secops@ubuntu:~$</span> <span class="command">python3 --version</span>
-Python 3.x
-
-<span class="prompt">secops@ubuntu:~$</span> <span class="command">python3 -m http.server 8000</span></pre>
+        <div class="video-pane">
+          <div class="video-frame">
+            <iframe src="https://www.youtube-nocookie.com/embed/b4l_Hu2OBkI" title="Run Linux on Windows 11: Install WSL 2 and Ubuntu beginner guide" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+          </div>
+          <div class="video-caption"><span><strong>New guide:</strong> WSL 2 + Ubuntu</span><span>Beginner friendly</span></div>
         </div>
       </article>
     </section>
@@ -225,13 +324,32 @@ Python 3.x
     <section class="section wrap">
       <div class="section-head">
         <h2>What you’ll learn</h2>
-        <p>Short tips for quick wins, plus complete guides when a topic needs more explanation.</p>
+        <p>Fast solutions for everyday problems, plus complete projects that build practical infrastructure skills.</p>
       </div>
       <div class="cards">
-        <article class="card"><div class="icon">⊞</div><h3>Windows</h3><p>Useful shortcuts, troubleshooting and built-in tools that save time.</p></article>
-        <article class="card"><div class="icon">$_</div><h3>Linux & WSL</h3><p>Beginner-friendly commands, setup guides and practical demonstrations.</p></article>
-        <article class="card"><div class="icon">◫</div><h3>Homelab</h3><p>Proxmox, monitoring, self-hosting and real infrastructure projects.</p></article>
+        <article class="card"><div class="icon">⊞</div><h3>Windows & WSL</h3><p>Windows tips, Windows Server, troubleshooting, built-in tools and Linux running alongside Windows.</p></article>
+        <article class="card"><div class="icon">$_</div><h3>Linux</h3><p>Beginner-friendly commands, server administration and practical command-line demonstrations.</p></article>
+        <article class="card"><div class="icon">PX</div><h3>Proxmox & Virtualization</h3><p>Build virtual machines, containers and dependable infrastructure in a real homelab.</p></article>
+        <article class="card"><div class="icon">DK</div><h3>Docker & Self-Hosting</h3><p>Deploy useful services, understand containers and keep control of your own applications.</p></article>
+        <article class="card"><div class="icon">NW</div><h3>Networking & Monitoring</h3><p>Troubleshoot connectivity and monitor systems, services and infrastructure health.</p></article>
+        <article class="card"><div class="icon">AZ</div><h3>Azure & Cloud</h3><p>Learn cloud fundamentals, administration and practical workflows you can apply at work.</p></article>
       </div>
+    </section>
+
+    <section class="section wrap" id="about">
+      <article class="about">
+        <div>
+          <span class="tag">About 60SecOps</span>
+          <h2>Learn by building something real</h2>
+          <p>I build, test, troubleshoot and explain practical IT projects across Windows, Linux, virtualization, self-hosting, networking and cloud. Follow along, understand each step and keep the commands for later.</p>
+          <a class="button secondary" href="https://www.youtube.com/@60SecOps?sub_confirmation=1" target="_blank" rel="noopener">Join the channel ↗</a>
+        </div>
+        <div class="process" aria-label="How 60SecOps guides work">
+          <div class="process-row"><b>01</b><div><strong>See the result</strong><span>Know what you are building before you begin.</span></div></div>
+          <div class="process-row"><b>02</b><div><strong>Follow the steps</strong><span>Use focused instructions without unnecessary filler.</span></div></div>
+          <div class="process-row"><b>03</b><div><strong>Keep the commands</strong><span>Download the exact commands and reuse them later.</span></div></div>
+        </div>
+      </article>
     </section>
 
     <section class="section wrap" id="downloads">
